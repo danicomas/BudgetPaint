@@ -1,7 +1,7 @@
 # BudgetPaint
 
 Run project:
-node index.js
+**node index.js**
 
 Run tests:
-karma start
+**karma start**
