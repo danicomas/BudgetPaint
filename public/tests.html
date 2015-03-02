@@ -1,0 +1,135 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Jasmine v2.0 DOM Tests Spec Runner</title>
+ 
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min.js"></script>  
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.1.0/css/bootstrap-colorpicker.min.css"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.1.0/js/bootstrap-colorpicker.min.js"></script>
+
+
+  <link rel="shortcut icon" type="image/png" href="images/jasmine_favicon.png">
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jasmine/2.2.1/jasmine.min.css">
+ 
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jasmine/2.2.1/jasmine.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jasmine/2.2.1/jasmine-html.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jasmine/2.2.1/boot.min.js"></script>
+  <script type="text/javascript" src="https://cdn.rawgit.com/velesin/jasmine-jquery/master/lib/jasmine-jquery.js"></script>
+</head>
+<body class="height">
+  <div class="container height">
+  </div>
+</body>
+</html>
+ <link rel="stylesheet" href="css/css.css">
+<script type="text/template" id="canvasView">
+<div class="row height">
+  <div class="col-md-8 height canvas-container margin-top">
+    <canvas id="canvas"></canvas>
+  </div>
+  <div class="col-md-4 margin-top">
+  <div class="row">
+    <div class="col-md-3 col-xs-3">
+      <div class="picker">
+          <div class="add-on picker-text"></div>
+      </div>
+    </div>
+    <div class="col-md-3 col-xs-3">
+      <button id="increaseLineWeight" type="button" class="btn btn-default btn-sm">
+            <span class="glyphicon glyphicon-minus"></span>
+          </button>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <input id="resetCanvas" type="button" class="btn btn-default full-width" value="Reset Canvas" />
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6 col-xs-6">
+      <input type="button" class="btn btn-default full-width" value="Undo" />
+    </div>
+    <div class="col-md-6 col-xs-6">
+      <input type="button" class="btn btn-default full-width" value="Redo" />
+    </div>
+  </div>
+  </div>
+</div>
+</script>
+<script type="text/javascript" src="models/canvasModel.js"></script>
+<script type="text/javascript" src="views/canvasView.js"></script>
+   
+  <script type="text/javascript">
+ 
+describe("Canvas View", function() { 
+  describe("Change color", function() {
+    var spyEvent;
+
+    var model = new canvasModel({})
+      new canvasView({model: model});
+       
+    beforeEach(function() {
+    });
+       
+    it ("should change the color of the canvas", function() {
+      spyEvent = spyOnEvent('.picker-text', 'changeColor.colorpicker');
+      $('.picker-text').colorpicker('setValue', "#344444");
+      expect(spyEvent).toHaveBeenTriggered();
+      expect($('.picker-text').data('colorpicker').color.toHex()).toBe("#344444");
+
+      var canvas = $("#canvas");
+      var context=canvas[0].getContext("2d");
+
+      expect(context.fillStyle).toBe("#344444");
+    });
+    it ("should add border to the canvas", function() {
+      spyEvent = spyOnEvent('#increaseLineWeight', 'click');
+      $('#increaseLineWeight').trigger( "click" );
+      expect(spyEvent).toHaveBeenTriggered();
+
+      expect(model.attributes.lineWidth).toBe(11);
+
+      var canvas = document.createElement("canvas");
+      canvas.width = $("#canvas").width();
+      canvas.height = $("#canvas").height();
+      var context=canvas.getContext("2d");
+      context.fillStyle= model.attributes.color;
+      context.lineWidth = model.attributes.lineWidth;
+      var h=parseInt(canvas.height);
+      var w=parseInt(canvas.width);
+      context.fillRect(0,0,w - model.attributes.lineWidth,h - model.attributes.lineWidth);
+      context.strokeRect(model.attributes.lineWidth / 2, model.attributes.lineWidth / 2, w - model.attributes.lineWidth, h - model.attributes.lineWidth);
+
+      var dataURL = canvas.toDataURL();
+      expect(dataURL).toBe($("#canvas")[0].toDataURL());
+    });
+    it ("reset Canvas", function() {
+      spyEvent = spyOnEvent('#resetCanvas', 'click');
+      $('#resetCanvas').trigger( "click" );
+      expect(spyEvent).toHaveBeenTriggered();
+
+      expect(model.attributes.lineWidth).toBe(10);
+
+      var canvas = document.createElement("canvas");
+      canvas.width = $("#canvas").width();
+      canvas.height = $("#canvas").height();
+      var context=canvas.getContext("2d");
+      context.fillStyle= model.defaults.color;
+      context.lineWidth = model.defaults.lineWidth;
+      var h=parseInt(canvas.height);
+      var w=parseInt(canvas.width);
+      context.fillRect(0,0,w - model.defaults.lineWidth,h - model.defaults.lineWidth);
+      context.strokeRect(model.defaults.lineWidth / 2, model.defaults.lineWidth / 2, w - model.defaults.lineWidth, h - model.defaults.lineWidth);
+
+      var dataURL = canvas.toDataURL();
+      expect(dataURL).toBe($("#canvas")[0].toDataURL());
+    });
+  });
+});
+</script>

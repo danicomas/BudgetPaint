@@ -1,0 +1,24 @@
+.picker,
+	.add-on
+	{
+		width: 80px;
+		height: 80px;
+	}
+
+	.height
+	{
+		height: 100%;
+	}
+
+	.full-width
+	{
+		width: 100%;
+	}
+
+	.canvas-container {
+		height: 70%;
+	}
+
+	.margin-top {
+		margin-top: 10px;
+	}
